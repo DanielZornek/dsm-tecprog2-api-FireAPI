@@ -1,6 +1,8 @@
 package br.edu.fatecpg.tecprog.spring.consultafireapi;
 
+import br.edu.fatecpg.tecprog.spring.consultafireapi.model.Veiculo;
 import br.edu.fatecpg.tecprog.spring.consultafireapi.service.ConsumoAPI;
+import com.google.gson.Gson;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -33,6 +35,13 @@ public class ConsultaFireApiApplication implements CommandLineRunner {
 				listarModelos(codigoMarca);
 				System.out.print("Código do modelo: ");
 				String codigoModelo = entrada.nextLine();
+
+				listarAnos(codigoMarca, codigoModelo);
+				System.out.print("Ano do Veículo: ");
+				String ano = entrada.nextLine();
+
+				System.out.println("Veículo(s) encontrado(s): \n");
+				encontrarCarro(codigoMarca, codigoModelo, ano);
 				
 			}else if(escolha.equals("2")){
 				loop_programa = false;
@@ -40,6 +49,34 @@ public class ConsultaFireApiApplication implements CommandLineRunner {
 			}else{
 				System.out.println("Desculpe não entendi, tente novamente!");
 			}
+		}
+	}
+
+	protected static void encontrarCarro(String marca, String modelo, String ano) throws IOException, InterruptedException {
+		String dados = ConsumoAPI.obterDados("https://fipe.parallelum.com.br/api/v1/carros/marcas/"+marca+"/modelos/"+modelo+"/anos/"+ano);
+		Gson g = new Gson();
+		Veiculo v = g.fromJson(dados, Veiculo.class);
+
+		System.out.println(v);
+	}
+	
+	protected static void listarAnos(String marca, String modelo) throws IOException, InterruptedException {
+		String dados = ConsumoAPI.obterDados("https://fipe.parallelum.com.br/api/v1/carros/marcas/"+marca+"/modelos/"+modelo+"/anos");
+		dados = dados.replace("[", "");
+		dados = dados.replace("]", "");
+		dados = dados.replace("{", "");
+		dados = dados.replace("}", "");
+		dados = dados.replace("\"", "");
+		dados = dados.replace(":", "");
+		dados = dados.replace("nome", "");
+		dados = dados.replace("codigo", "");
+
+		String[] listaAnos = dados.split(",");
+
+		for(int i = 0; i < listaAnos.length; i+=2){
+			String ano = listaAnos[i];
+
+			System.out.println("Ano: "+ano);
 		}
 	}
 
